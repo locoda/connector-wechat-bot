@@ -20,7 +20,7 @@ def send_online_notification(name):
 
     while True:
         for member in memberList:
-            itchat.send('Now the time is: ' + time.strftime(
+            itchat.send('I\'m Still Alive!! ' + time.strftime(
                 '%y/%m/%d-%H:%M:%S', time.localtime()), member['UserName'])
             time.sleep(.5)
         time.sleep(1800)
