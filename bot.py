@@ -2,6 +2,7 @@
 import itchat
 from itchat.content import *
 
+import os
 import hashlib
 import random
 import unicodedata
@@ -18,6 +19,9 @@ from token import APIAI_TOKEN, TULING_TOKEN
 def send_online_notification(name):
     memberList = itchat.search_friends(name = name)
 
+    os.environ['TZ'] = 'Asia/Shanghai'
+    time.tzset()
+    
     while True:
         for member in memberList:
             itchat.send('I\'m Still Alive!! ' + time.strftime(
