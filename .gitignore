@@ -1,2 +1,4 @@
 *.pyc
 token.py
+*.swp
+*.pkl
