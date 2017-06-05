@@ -7,11 +7,23 @@ import random
 import unicodedata
 import requests
 import json
+import time
+import threading
 
 import apiai
 #from google import google
 
 from token import APIAI_TOKEN, TULING_TOKEN
+
+def send_online_notification(name):
+    memberList = itchat.search_friends(name = name)
+
+    while True:
+        for member in memberList:
+            itchat.send('I\'m Still Alive!! ' + time.strftime(
+                '%y/%m/%d-%H:%M:%S', time.localtime()), member['UserName'])
+            time.sleep(.5)
+        time.sleep(1800)
 
 
 def tuling_reply(msg_content, user_id):
@@ -92,14 +104,12 @@ def text_reply(msg):
         print "userid: " + str(userid)
         itchat.send(apiai_reply(info, userid), msg['FromUserName'])
 
-s = requests.Session()
-s.verify = '/usr/lib/python2.7/site-packages/certifi/cacert.pem'
+
 itchat.auto_login(hotReload=True, enableCmdQR=2)
 
-# while True:
-#     friendList = itchat.get_friends(update=True)[1:]
-#     for friend in friendList:
-#         itchat.send(time.asctime(time.localtime(time.time())))
-#     time.sleep(1800)
+positiveSendingThread = threading.Thread(target=send_online_notification,
+    args=('ether',))
+positiveSendingThread.setDaemon(True)
+positiveSendingThread.start()
 
 itchat.run()
