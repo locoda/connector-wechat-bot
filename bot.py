@@ -21,9 +21,6 @@ from api_tokens import APIAI_TOKEN, TULING_TOKEN
 
 def send_online_notification(name):
     memberList = itchat.search_friends(name = name)
-
-    os.environ['TZ'] = 'Asia/Shanghai'
-    time.tzset()
     
     while True:
         for member in memberList:
@@ -109,8 +106,6 @@ def apiai_reply(msg_content, user_id):
         return s['result']['fulfillment']['speech']
 
 
-
-
 @itchat.msg_register(TEXT)
 def TEXT_reply(msg):
     if msg['Content'].endswith('.gif') or msg['Content'].endswith('.jpg') or msg['Content'].endswith('.png'):
@@ -146,6 +141,9 @@ def text_reply(msg):
 
 
 itchat.auto_login(hotReload=True, enableCmdQR=2)
+
+os.environ['TZ'] = 'Asia/Shanghai'
+time.tzset()
 
 positiveSendingThread = threading.Thread(target=send_online_notification,
     args=('ether',))
