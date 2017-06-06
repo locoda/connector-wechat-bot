@@ -2,19 +2,22 @@
 import itchat
 from itchat.content import *
 
-import os
-import hashlib
-import random
 import unicodedata
 import requests
 import json
+from bs4 import BeautifulSoup
+
+import os
+import io
+import hashlib
+import random
 import time
 import threading
 
 import apiai
 #from google import google
 
-from token import APIAI_TOKEN, TULING_TOKEN
+from api_tokens import APIAI_TOKEN, TULING_TOKEN
 
 def send_online_notification(name):
     memberList = itchat.search_friends(name = name)
@@ -28,6 +31,31 @@ def send_online_notification(name):
                 '%y/%m/%d-%H:%M:%S', time.localtime()), member['UserName'])
             time.sleep(.5)
         time.sleep(1800)
+
+# thanks: https://github.com/qwIvan/microMsg-bot/blob/master/meme.py
+def search_gif(keyword):
+    resp = requests.get('https://www.doutula.com/search', {'keyword': keyword})
+    soup = BeautifulSoup(resp.text, 'lxml')
+    return [('http:' + i.get('data-original'), 'http:' + i.get('data-backup')[:-4]) for i in soup.select('.select-container img') if i.get('class') != ['gif']]
+
+def gif_reply(keyword, user_id):
+    print "try gif reply..."
+    imgs = search_gif(keyword)
+
+    if not imgs:
+        return apiai_reply(keyword, user_id)
+
+    print "use gif reply"
+    img = random.choice(imgs)
+
+    url = img[0]
+    r = requests.get(url, stream=True)
+    imageStorage = io.BytesIO()
+    for block in r.iter_content(1024):
+        imageStorage.write(block)
+    imageStorage.seek(0)
+
+    return imageStorage
 
 
 def tuling_reply(msg_content, user_id):
@@ -81,9 +109,14 @@ def apiai_reply(msg_content, user_id):
         return s['result']['fulfillment']['speech']
 
 
+
+
 @itchat.msg_register(TEXT)
-def purdue_reply(msg):
-    itchat.send(apiai_reply(msg['Content'].encode('UTF-8'), msg['FromUserName']), msg['FromUserName'])
+def TEXT_reply(msg):
+    if msg['Content'].endswith('.gif') or msg['Content'].endswith('.jpg') or msg['Content'].endswith('.png'):
+        itchat.send_image(gif_reply(msg.text[:-4], msg['FromUserName']), msg['FromUserName'])
+    else:
+        itchat.send(apiai_reply(msg['Content'].encode('UTF-8'), msg['FromUserName']), msg['FromUserName'])
 
 
 @itchat.msg_register(INCOME_MSG, isGroupChat=True)
@@ -106,7 +139,10 @@ def text_reply(msg):
         # print "processed msg:" + info
         userid = int(hashlib.sha1(msg['ActualNickName'].encode('utf-8')).hexdigest(), 16) % 65537
         print "userid: " + str(userid)
-        itchat.send(apiai_reply(info, userid), msg['FromUserName'])
+        if info.endswith('.gif') or info.endswith('.jpg') or info.endswith('.png'):
+            itchat.send_image(gif_reply(info[:-4], userid), msg['FromUserName'])
+        else:
+            itchat.send(apiai_reply(info, userid), msg['FromUserName'])
 
 
 itchat.auto_login(hotReload=True, enableCmdQR=2)
