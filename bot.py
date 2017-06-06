@@ -33,7 +33,7 @@ def send_online_notification(name):
 def search_gif(keyword):
     resp = requests.get('https://www.doutula.com/search', {'keyword': keyword})
     soup = BeautifulSoup(resp.text, 'lxml')
-    return [('http:' + i.get('data-original'), 'http:' + i.get('data-backup')[:-4]) for i in soup.select('.select-container img') if i.get('class') != ['gif']]
+    return [i.get('src') for i in soup.select('.img-responsive') if i.get('alt') != ['U表情包官方微信公众号']]
 
 def gif_reply(keyword, user_id):
     print "try gif reply..."
@@ -108,8 +108,12 @@ def apiai_reply(msg_content, user_id):
 
 @itchat.msg_register(TEXT)
 def TEXT_reply(msg):
-    if msg['Content'].endswith('.gif') or msg['Content'].endswith('.jpg') or msg['Content'].endswith('.png'):
+    if msg['Content'].lower().endswith('.gif') or msg['Content'].lower().endswith('.jpg') or msg['Content'].lower().endswith('.png'):
         itchat.send_image(gif_reply(msg.text[:-4], msg['FromUserName']), msg['FromUserName'])
+    elif msg['Content'] == '1':
+        itchat.send('I\'m Still Alive!! ' + time.strftime(
+                '%y/%m/%d-%H:%M:%S', time.localtime()), msg['FromUserName'])
+        time.sleep(.5)
     else:
         itchat.send(apiai_reply(msg['Content'].encode('UTF-8'), msg['FromUserName']), msg['FromUserName'])
 
@@ -134,7 +138,7 @@ def text_reply(msg):
         # print "processed msg:" + info
         userid = int(hashlib.sha1(msg['ActualNickName'].encode('utf-8')).hexdigest(), 16) % 65537
         print "userid: " + str(userid)
-        if info.endswith('.gif') or info.endswith('.jpg') or info.endswith('.png'):
+        if info.lower().endswith('.gif') or info.lower().endswith('.jpg') or info.lower().endswith('.png'):
             itchat.send_image(gif_reply(info[:-4], userid), msg['FromUserName'])
         else:
             itchat.send(apiai_reply(info, userid), msg['FromUserName'])
