@@ -33,7 +33,7 @@ def send_online_notification(name):
 def search_gif(keyword):
     resp = requests.get('https://www.doutula.com/search', {'keyword': keyword})
     soup = BeautifulSoup(resp.text, 'lxml')
-    return [i.get('src') for i in soup.select('.img-responsive') if i.get('alt') != ['U表情包官方微信公众号']]
+    return [('http:' + i.get('data-original'), 'http:' + i.get('data-backup')[:-4]) for i in soup.select('.select-container img') if i.get('class') != ['gif']]
 
 def gif_reply(keyword, user_id):
     print "try gif reply..."
