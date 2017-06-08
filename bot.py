@@ -40,7 +40,8 @@ def gif_reply(keyword, user_id):
     imgs = search_gif(keyword)
 
     if not imgs:
-        return apiai_reply(keyword, user_id)
+	   # print apiai_reply(keyword, user_id)
+        return u'没有找到表情呢/(ㄒoㄒ)/~ 机器人来回答你：\n\n' + apiai_reply(keyword, user_id)
 
     print "use gif reply"
     img = random.choice(imgs)
@@ -52,7 +53,7 @@ def gif_reply(keyword, user_id):
         imageStorage.write(block)
     imageStorage.seek(0)
 
-    return imageStorage
+    return '@img@%s' % imageStorage
 
 
 def tuling_reply(msg_content, user_id):
@@ -66,6 +67,7 @@ def tuling_reply(msg_content, user_id):
     s = requests.post(apiUrl, data=data, verify=False).json()
     print 'return code: ' + str(s['code'])
     if s['code'] == 100000:
+	# print s['text']
         return s['text']
     if s['code'] == 200000:
         return s['text'] + s['url']
@@ -109,7 +111,7 @@ def apiai_reply(msg_content, user_id):
 @itchat.msg_register(TEXT)
 def TEXT_reply(msg):
     if msg['Content'].lower().endswith('.gif') or msg['Content'].lower().endswith('.jpg') or msg['Content'].lower().endswith('.png'):
-        itchat.send_image(gif_reply(msg.text[:-4], msg['FromUserName']), msg['FromUserName'])
+        itchat.send(gif_reply(msg.text[:-4], msg['FromUserName']), msg['FromUserName'])
     elif msg['Content'] == '1':
         itchat.send('I\'m Still Alive!! ' + time.strftime(
                 '%y/%m/%d-%H:%M:%S', time.localtime()), msg['FromUserName'])
@@ -139,7 +141,7 @@ def text_reply(msg):
         userid = int(hashlib.sha1(msg['ActualNickName'].encode('utf-8')).hexdigest(), 16) % 65537
         print "userid: " + str(userid)
         if info.lower().endswith('.gif') or info.lower().endswith('.jpg') or info.lower().endswith('.png'):
-            itchat.send_image(gif_reply(info[:-4], userid), msg['FromUserName'])
+            itchat.send(gif_reply(info[:-4], userid), msg['FromUserName'])
         else:
             itchat.send(apiai_reply(info, userid), msg['FromUserName'])
 
