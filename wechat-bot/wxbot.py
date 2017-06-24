@@ -7,10 +7,12 @@ import unicodedata
 import re
 import time
 import logging
+from tempfile import NamedTemporaryFile
 
 logging.basicConfig()
 bot = Bot(cache_path=True, console_qr=True,)
 bot.enable_puid()
+extensions = ['.jpg', '.png', '.gif']
 
 @bot.register(bot.self, except_self=False)
 def reply(msg):
@@ -22,15 +24,26 @@ def reply(msg):
 @bot.register(Group, TEXT)
 def group_msg(msg):
 	if msg.is_at:
-		content = re.sub('@[^\s]*', '', unicodedata.normalize('NFKC', msg.text)).strip()
+		content = re.sub('@[^\s]*', '', unicodedata.normalize('NFKC', msg.text)).strip().encode('utf-8')
 
-
-
-		try:
-			msg.reply(apiai_reply(content, msg.member.puid))
-		except Exception as error:
-			print error
-			msg.reply(tuling_reply(content, msg.member.puid))
-
+		if content.endswith(tuple(extensions)):
+			try:
+				res = requests.get(emotions_reply(content[:-4]), allow_redirects=False)
+				tmp = NamedTemporaryFile()
+				tmp.write(res.content)
+				tmp.flush()
+				media_id = bot.upload_file(tmp.name)
+				tmp.close()
+				
+				msg.reply_image('.gif', media_id=media_id)
+			except Exception as error:
+				print error
+				msg.reply(u"本机器人没有找到相关表情~使用文字回复：\n" + tuling_reply(content, msg.member.puid))
+		else:
+			try:
+				msg.reply(apiai_reply(content, msg.member.puid))
+			except Exception as error:
+				print error
+				msg.reply(tuling_reply(content, msg.member.puid))
 
 embed()

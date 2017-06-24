@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import io
 import requests
-from bs4 import BeautifulSoup
+from lxml import etree
 import json
 import random
 import apiai
@@ -30,6 +31,7 @@ def tuling_reply(msg_content, user_id):
         menu = random.choice(s['list'])
         return menu['name'] + '\n' + menu['detailurl'] + '\n' + menu['info']
 
+
 def apiai_reply(msg_content, user_id):
     print "try APIAI reply..."
     ai = apiai.ApiAI(APIAI_TOKEN)
@@ -48,6 +50,11 @@ def apiai_reply(msg_content, user_id):
         print 'return code: ' + str(s['status']['code'])
         return s['result']['fulfillment']['speech']
 
-def gif_reply(keyword):
+
+def emotions_reply(keyword):
     print "try gif reply..."
-    
+    res = requests.get('https://www.doutula.com/search', {'keyword': keyword})
+    html = etree.HTML(res.text)
+    url = 'http:' + random.choice(html.xpath('//div[@class="image-container"][1]//img[contains(@class, "img-responsive")]/@data-original'))
+
+    return url
