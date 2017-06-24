@@ -11,7 +11,7 @@ import threading
 from tempfile import NamedTemporaryFile
 
 logging.basicConfig()
-bot = Bot(cache_path=True, console_qr=True,)
+bot = Bot(cache_path=True, console_qr=True)
 bot.enable_puid()
 extensions = ['.jpg', '.png', '.gif']
 
