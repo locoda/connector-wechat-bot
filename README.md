@@ -22,7 +22,13 @@ It is used for incoming freshmen in group chat, so the main program might not ve
    TULING_TOKEN = 'Your Token'
    ```
 
-3.  Run the bot!
+3. Run the bot!
 
 4. Customize your own bot using `messages.py`
 
+
+
+
+# Tutorials?
+
+I wrote some tutorials in Chinese in markdown at `1.md` and so on. You can also access those tutorials in [Jianshu](http://www.jianshu.com/nb/13718958)
