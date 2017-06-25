@@ -55,6 +55,9 @@ def emotions_reply(keyword):
 	print("try gif reply...")
 	res = requests.get('https://www.doutula.com/search', {'keyword': keyword})
 	html = etree.HTML(res.text)
-	url = 'http:' + random.choice(html.xpath('//div[@class="image-container"][1]//img[contains(@class, "img-responsive")]/@data-original'))
+	urls = html.xpath('//div[@class="image-container"][1]//img[contains(@class, "img-responsive")]/@data-original')
+	if len(urls) < 1:
+		raise Exception('doutula cannot reply this message')
+	url = 'http:' + random.choice(urls)
 
 	return url

@@ -68,4 +68,5 @@ positiveSendingThread = threading.Thread(target=send_online_notification, args=(
 positiveSendingThread.setDaemon(True)
 positiveSendingThread.start()
 
-embed()
+# embed()
+bot.join()
